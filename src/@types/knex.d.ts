@@ -1,4 +1,4 @@
-// biome-ignore lint: the import is necessary to allow the module augmentation 
+// biome-ignore lint: the import is necessary to allow the module augmentation
 import { Knex } from "knex";
 import "fastify";
 
@@ -18,14 +18,6 @@ declare module "knex/types/tables" {
 			datetime: string;
 			is_on_diet: boolean;
 			created_at: string;
-		};
-	}
-}
-
-declare module "fastify" {
-	export interface FastifyRequest {
-		user?: {
-			id: string;
 		};
 	}
 }
