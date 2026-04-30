@@ -2,8 +2,8 @@
 
 ## Application Rules
 
-- [ ] It must be possible to create a user
-- [ ] It must be possible to identify the user between requests
+- [x] It must be possible to create a user
+- [x] It must be possible to identify the user between requests
 - [ ] It must be possible to register a meal with the following information:
   - [ ] Name
   - [ ] Description
