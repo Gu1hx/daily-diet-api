@@ -21,3 +21,10 @@ declare module "knex/types/tables" {
 		};
 	}
 }
+declare module "fastify" {
+	interface FastifyRequest {
+		user: {
+			id: string;
+		};
+	}
+}

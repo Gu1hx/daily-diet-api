@@ -5,6 +5,15 @@ import { knex } from "../database.js";
 import { checkSessionIdExist } from "../middlewares/check-session-id-exists.js";
 
 export async function mealsRoutes(app: FastifyInstance) {
+	app.addHook("preHandler", async (request) => {
+		const user = await knex("users")
+			.where({ session_id: request.cookies.session_id })
+			.select("id")
+			.first();
+
+		request.user = user;
+	});
+
 	app.post("/", { preHandler: checkSessionIdExist }, async (request, reply) => {
 		const createMealsBodySchema = z.object({
 			name: z.string(),
@@ -16,14 +25,9 @@ export async function mealsRoutes(app: FastifyInstance) {
 		const { name, description, datetime, is_on_diet } =
 			createMealsBodySchema.parse(request.body);
 
-		const user = await knex("users")
-			.where({ session_id: request.cookies.session_id })
-			.select("id")
-			.first();
-
 		await knex("meals").insert({
 			id: randomUUID(),
-			user_id: user.id,
+			user_id: request.user.id,
 			name,
 			description,
 			datetime,
@@ -33,12 +37,9 @@ export async function mealsRoutes(app: FastifyInstance) {
 		return reply.code(201).send();
 	});
 	app.get("/", { preHandler: checkSessionIdExist }, async (request) => {
-		const user = await knex("users")
-			.where({ session_id: request.cookies.session_id })
-			.select("id")
-			.first();
-
-		const meals = await knex("meals").where({ user_id: user.id }).select("*");
+		const meals = await knex("meals")
+			.where({ user_id: request.user.id })
+			.select("*");
 
 		return meals;
 	});
