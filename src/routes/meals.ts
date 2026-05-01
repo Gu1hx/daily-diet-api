@@ -5,8 +5,7 @@ import { knex } from "../database.js";
 import { checkSessionIdExist } from "../middlewares/check-session-id-exists.js";
 
 export async function mealsRoutes(app: FastifyInstance) {
-
-	app.addHook('preHandler', checkSessionIdExist)
+	app.addHook("preHandler", checkSessionIdExist);
 
 	app.addHook("preHandler", async (request) => {
 		const user = await knex("users")
@@ -46,5 +45,17 @@ export async function mealsRoutes(app: FastifyInstance) {
 			.select("*");
 
 		return meals;
+	});
+
+	app.get("/:id", async (request) => {
+		const getMealParamsSchema = z.object({
+			id: z.uuid(),
+		});
+
+		const { id } = getMealParamsSchema.parse(request.params);
+
+		const meal = await knex("meals").where({ id: id }).first();
+
+		return meal;
 	});
 }

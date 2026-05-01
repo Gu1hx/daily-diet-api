@@ -12,7 +12,7 @@
 - [ ] It must be possible to edit a meal
 - [ ] It must be possible to delete a meal
 - [x] It must be possible to list all meals from a user
-- [ ] It must be possible to view a single meal
+- [x] It must be possible to view a single meal
 - [ ] It must be possible to retrieve user metrics
   - [ ] Total number of registered meals
   - [ ] Total number of meals on diet
