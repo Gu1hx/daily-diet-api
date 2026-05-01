@@ -47,7 +47,7 @@ export async function mealsRoutes(app: FastifyInstance) {
 		return meals;
 	});
 
-	app.get("/:id", async (request) => {
+	app.get("/:id", async (request, reply) => {
 		const getMealParamsSchema = z.object({
 			id: z.uuid(),
 		});
@@ -57,5 +57,39 @@ export async function mealsRoutes(app: FastifyInstance) {
 		const meal = await knex("meals").where({ id: id }).first();
 
 		return meal;
+	});
+
+	app.put("/:id", async (request, reply) => {
+		const getMealParamsSchema = z.object({
+			id: z.uuid(),
+		});
+
+		const createMealsBodySchema = z.object({
+			name: z.string().optional(),
+			description: z.string().optional(),
+			datetime: z.iso.datetime().optional(),
+			is_on_diet: z.boolean().optional(),
+		});
+
+		const { id } = getMealParamsSchema.parse(request.params);
+
+		const { name, description, datetime, is_on_diet } =
+			createMealsBodySchema.parse(request.body);
+
+		const permission = await knex("meals").where({
+			id: id,
+			user_id: request.user.id,
+		});
+
+		if (permission.length === 0) {
+			return reply.status(403).send({ error: "Unauthorized" });
+		}
+
+		await knex("meals").where({ id: id }).update({
+			name,
+			description,
+			datetime,
+			is_on_diet,
+		});
 	});
 }
