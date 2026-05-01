@@ -54,6 +54,15 @@ export async function mealsRoutes(app: FastifyInstance) {
 
 		const { id } = getMealParamsSchema.parse(request.params);
 
+		const permission = await knex("meals").where({
+			id: id,
+			user_id: request.user.id,
+		});
+
+		if (permission.length === 0) {
+			return reply.status(403).send({ error: "Unauthorized" });
+		}
+
 		const meal = await knex("meals").where({ id: id }).first();
 
 		return meal;
