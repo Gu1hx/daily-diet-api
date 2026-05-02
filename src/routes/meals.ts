@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { knex } from "../database.js";
 import { checkSessionIdExist } from "../middlewares/check-session-id-exists.js";
+import { validateUserPermission } from "../utils/validate-user-permission.js";
 
 export async function mealsRoutes(app: FastifyInstance) {
 	app.addHook("preHandler", checkSessionIdExist);
@@ -54,14 +55,9 @@ export async function mealsRoutes(app: FastifyInstance) {
 
 		const { id } = getMealParamsSchema.parse(request.params);
 
-		const permission = await knex("meals").where({
-			id: id,
-			user_id: request.user.id,
-		});
+		await validateUserPermission(request, reply, id);
 
-		if (permission.length === 0) {
-			return reply.status(403).send({ error: "Unauthorized" });
-		}
+		if (reply.sent) return;
 
 		const meal = await knex("meals").where({ id: id }).first();
 
@@ -85,14 +81,9 @@ export async function mealsRoutes(app: FastifyInstance) {
 		const { name, description, datetime, is_on_diet } =
 			createMealsBodySchema.parse(request.body);
 
-		const permission = await knex("meals").where({
-			id: id,
-			user_id: request.user.id,
-		});
+		await validateUserPermission(request, reply, id);
 
-		if (permission.length === 0) {
-			return reply.status(403).send({ error: "Unauthorized" });
-		}
+		if (reply.sent) return;
 
 		await knex("meals").where({ id: id }).update({
 			name,
