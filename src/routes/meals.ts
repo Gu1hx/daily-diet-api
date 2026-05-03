@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { knex } from "../database.js";
 import { checkSessionIdExist } from "../middlewares/check-session-id-exists.js";
+import { countBestStreakOnDiet } from "../utils/count-best-streak-on-diet.js";
 import { validateUserPermission } from "../utils/validate-user-permission.js";
 
 export async function mealsRoutes(app: FastifyInstance) {
@@ -84,23 +85,8 @@ export async function mealsRoutes(app: FastifyInstance) {
 			.select("is_on_diet")
 			.orderBy("datetime", "asc");
 
-		let count = 0;
-		let bestStreak = 0;
+		const bestStreak = countBestStreakOnDiet(OnDiet);
 
-		for (let i = 0; i < OnDiet.length; i++) {
-			const thisMeal = OnDiet[i].is_on_diet;
-
-			if (thisMeal === 1) {
-				count += 1;
-			} else {
-				bestStreak = count > bestStreak ? count : bestStreak;
-				count = 0;
-			}
-		}
-
-		if (count > bestStreak) {
-			bestStreak = count;
-		}
 		return {
 			stats: {
 				total_meals: RegisteredUserMeals?.total,
