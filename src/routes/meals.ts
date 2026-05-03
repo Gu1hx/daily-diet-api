@@ -64,6 +64,53 @@ export async function mealsRoutes(app: FastifyInstance) {
 		return meal;
 	});
 
+	app.get("/status", async (request) => {
+		const RegisteredUserMeals = await knex("meals")
+			.where({ user_id: request.user.id })
+			.count("id", { as: "total" })
+			.first();
+
+		const UserMealsOnDiet = await knex("meals")
+			.where({ user_id: request.user.id })
+			.count("id", { as: "ondiet" })
+			.where("is_on_diet", 1)
+			.first();
+
+		const UserMealsOffDiet =
+			Number(RegisteredUserMeals?.total) - Number(UserMealsOnDiet?.ondiet);
+
+		const OnDiet = await knex("meals")
+			.where({ user_id: request.user.id })
+			.select("is_on_diet")
+			.orderBy("datetime", "asc");
+
+		let count = 0;
+		let bestStreak = 0;
+
+		for (let i = 0; i < OnDiet.length; i++) {
+			const thisMeal = OnDiet[i].is_on_diet;
+
+			if (thisMeal === 1) {
+				count += 1;
+			} else {
+				bestStreak = count > bestStreak ? count : bestStreak;
+				count = 0;
+			}
+		}
+
+		if (count > bestStreak) {
+			bestStreak = count;
+		}
+		return {
+			stats: {
+				total_meals: RegisteredUserMeals?.total,
+				meals_on_diet: UserMealsOnDiet?.ondiet,
+				meals_off_diet: UserMealsOffDiet,
+				best_streak_on_diet: bestStreak,
+			},
+		};
+	});
+
 	app.put("/:id", async (request, reply) => {
 		const getMealParamsSchema = z.object({
 			id: z.uuid(),
