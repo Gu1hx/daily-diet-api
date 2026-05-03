@@ -20,7 +20,7 @@ export async function mealsRoutes(app: FastifyInstance) {
 	app.post("/", async (request, reply) => {
 		const createMealsBodySchema = z.object({
 			name: z.string(),
-			description: z.string(),
+			description: z.string().optional(),
 			datetime: z.iso.datetime(),
 			is_on_diet: z.boolean(),
 		});
@@ -106,6 +106,6 @@ export async function mealsRoutes(app: FastifyInstance) {
 
 		await knex("meals").where({ id: id }).delete();
 
-		return reply.code(204).send()
+		return reply.code(204).send();
 	});
 }
