@@ -24,4 +24,23 @@ describe("User Routes", () => {
 
 		expect(response.statusCode).toEqual(201);
 	});
+
+	it("should be able to list the user", async () => {
+		const createUser = await request(app.server).post("/users").send({
+			name: "User test",
+		});
+
+		const cookies = createUser.get("Set-Cookie") ?? [];
+
+		const getUserResponse = await request(app.server)
+			.get("/users")
+			.set("Cookie", cookies)
+			.expect(200);
+
+		expect(getUserResponse.body.user).toEqual(
+			expect.objectContaining({
+				name: "User test",
+			}),
+		);
+	});
 });
