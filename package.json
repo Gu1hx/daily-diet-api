@@ -8,7 +8,8 @@
 		"knex": "node --import tsx node_modules/knex/bin/cli.js",
 		"lint": "biome lint .",
 		"format": "biome format . --write",
-		"check": "biome check . --write"
+		"check": "biome check . --write",
+		"test": "npx vitest"
 	},
 	"keywords": [],
 	"author": "",
@@ -25,7 +26,10 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.4.13",
 		"@types/node": "^25.6.0",
+		"@types/supertest": "^7.2.0",
+		"supertest": "^7.2.2",
 		"tsx": "^4.21.0",
-		"typescript": "^6.0.3"
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.5"
 	}
 }
