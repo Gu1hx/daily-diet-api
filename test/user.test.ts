@@ -1,5 +1,6 @@
 import request from "supertest";
-import { afterAll, beforeAll, expect, it } from "vitest";
+import {execSync} from 'node:child_process'
+import { afterAll, beforeAll, beforeEach, expect, it } from "vitest";
 import { app } from "../src/app.js";
 
 beforeAll(async () => {
@@ -9,6 +10,11 @@ beforeAll(async () => {
 afterAll(async () => {
 	await app.close();
 });
+
+beforeEach(async () => {
+	execSync('npm run knex -- migrate:rollback')
+	execSync('npm run knex -- migrate:latest')
+})
 
 it("should be able to create a user", async () => {
 	const response = await request(app.server).post("/users").send({
