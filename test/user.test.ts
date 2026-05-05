@@ -98,4 +98,44 @@ describe("Meals Routes", () => {
 			]),
 		);
 	});
+	it("should be able to list a specific meal", async () => {
+		const createUser = await request(app.server).post("/users").send({
+			name: "User test",
+		});
+
+		const cookies = createUser.get("Set-Cookie") ?? [];
+
+		await request(app.server)
+			.post("/meals")
+			.set("Cookie", cookies)
+			.send({
+				name: "Meal Test",
+				description: "Description Test",
+				datetime: "2026-05-07T10:00:00Z",
+				is_on_diet: false,
+			})
+			.expect(201);
+
+		const listAllMealsResponse = await request(app.server)
+			.get("/meals")
+			.set("Cookie", cookies)
+			.expect(200);
+
+		const mealId = listAllMealsResponse.body.at(0).id;
+
+		const listASpecificMealResponse = await request(app.server)
+			.get(`/meals/${mealId}`)
+			.set("Cookie", cookies)
+			.expect(200);
+
+		expect(listASpecificMealResponse.body).toEqual(
+			expect.objectContaining({
+				id: mealId,
+				name: "Meal Test",
+				description: "Description Test",
+				datetime: "2026-05-07T10:00:00Z",
+				is_on_diet: 0,
+			}),
+		);
+	});
 });
