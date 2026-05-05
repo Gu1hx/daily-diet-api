@@ -56,11 +56,15 @@ export async function mealsRoutes(app: FastifyInstance) {
 
 		const { id } = getMealParamsSchema.parse(request.params);
 
+		const meal = await knex("meals").where({ id: id }).first();
+
+		if (!meal) {
+			return reply.code(404).send({ error: "Meal not found" });
+		}
+
 		await validateUserPermission(request, reply, id);
 
 		if (reply.sent) return;
-
-		const meal = await knex("meals").where({ id: id }).first();
 
 		return meal;
 	});
