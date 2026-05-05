@@ -64,4 +64,38 @@ describe("Meals Routes", () => {
 			})
 			.expect(201);
 	});
+	it("should be able to list all meals", async () => {
+		const createUser = await request(app.server).post("/users").send({
+			name: "User test",
+		});
+
+		const cookies = createUser.get("Set-Cookie") ?? [];
+
+		await request(app.server)
+			.post("/meals")
+			.set("Cookie", cookies)
+			.send({
+				name: "Meal Test",
+				description: "Description Test",
+				datetime: "2026-05-07T10:00:00Z",
+				is_on_diet: false,
+			})
+			.expect(201);
+
+		const listAllMealsResponse = await request(app.server)
+			.get("/meals")
+			.set("Cookie", cookies)
+			.expect(200);
+
+		expect(listAllMealsResponse.body).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					name: "Meal Test",
+					description: "Description Test",
+					datetime: "2026-05-07T10:00:00Z",
+					is_on_diet: 0,
+				}),
+			]),
+		);
+	});
 });
