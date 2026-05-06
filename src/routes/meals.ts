@@ -69,7 +69,7 @@ export async function mealsRoutes(app: FastifyInstance) {
 		return meal;
 	});
 
-	app.get("/status", async (request) => {
+	app.get("/stats", async (request) => {
 		const RegisteredUserMeals = await knex("meals")
 			.where({ user_id: request.user.id })
 			.count("id", { as: "total" })

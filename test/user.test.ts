@@ -224,4 +224,66 @@ describe("Meals Routes", () => {
 			.set("Cookie", cookies)
 			.expect(404);
 	});
+	it("should be able to get the stats", async () => {
+		const createUser = await request(app.server).post("/users").send({
+			name: "User test",
+		});
+
+		const cookies = createUser.get("Set-Cookie") ?? [];
+
+		await Promise.all([
+			request(app.server)
+				.post("/meals")
+				.set("Cookie", cookies)
+				.send({
+					name: "Meal Test 1",
+					description: "Description Test",
+					datetime: "2026-05-07T10:00:00Z",
+					is_on_diet: true,
+				})
+				.expect(201),
+			request(app.server)
+				.post("/meals")
+				.set("Cookie", cookies)
+				.send({
+					name: "Meal Test 2",
+					description: "Description Test",
+					datetime: "2026-05-07T11:00:00Z",
+					is_on_diet: true,
+				})
+				.expect(201),
+			request(app.server)
+				.post("/meals")
+				.set("Cookie", cookies)
+				.send({
+					name: "Meal Test 3",
+					description: "Description Test",
+					datetime: "2026-05-07T12:00:00Z",
+					is_on_diet: false,
+				})
+				.expect(201),
+			request(app.server)
+				.post("/meals")
+				.set("Cookie", cookies)
+				.send({
+					name: "Meal Test 4",
+					description: "Description Test",
+					datetime: "2026-05-07T13:00:00Z",
+					is_on_diet: true,
+				})
+				.expect(201),
+		]);
+
+		const getMealStatsResponse = await request(app.server)
+			.get("/meals/stats")
+			.set("Cookie", cookies)
+			.expect(200);
+
+		expect(getMealStatsResponse.body.stats).toEqual({
+			total_meals: 4,
+			meals_on_diet: 3,
+			meals_off_diet: 1,
+			best_streak_on_diet: 2,
+		});
+	});
 });
